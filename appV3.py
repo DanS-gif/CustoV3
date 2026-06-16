@@ -1,11 +1,11 @@
 """
-Métrica. — Sistema Inteligente e Paramétrico para Cálculo e Orçamento de Obras
+Métrica. - Sistema Inteligente e Paramétrico para Cálculo e Orçamento de Obras
 ===============================================================================
 MVP v3.0  |  Stack: Streamlit · Pandas · st-aggrid · Matplotlib · fpdf2 · JSON
 
 Arquitetura em blocos lógicos:
   [A] Imports, Configuração de Página e Guarda de Dependências
-  [B] CSS — Premium Tech Dark Mode (Vercel/Linear aesthetic)
+  [B] CSS - Premium Tech Dark Mode (Vercel/Linear aesthetic)
   [C] Constantes e Dados-Padrão
   [D] Gestão do sugestoes_mercado.json
   [E] Inicialização do Session State
@@ -37,7 +37,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Guarda de dependências — exibe erro amigável antes de crashar ──────────
+# ── Guarda de dependências - exibe erro amigável antes de crashar ──────────
 _PACOTES_NECESSARIOS: dict[str, str] = {
     "matplotlib": "matplotlib>=3.8.0",
     "numpy":      "numpy>=1.26.0",
@@ -77,7 +77,7 @@ from st_aggrid import (                # noqa: E402
 )
 
 # ═══════════════════════════════════════════════════════════════════════════
-# [B] CSS — PREMIUM TECH DARK MODE
+# [B] CSS - PREMIUM TECH DARK MODE
 # ═══════════════════════════════════════════════════════════════════════════
 
 CSS = """
@@ -296,7 +296,7 @@ html, body, [class*="css"] {
     transform: translateY(0) !important;
     box-shadow: 0 0 10px rgba(249,115,22,0.2) !important;
 }
-/* Botão de exclusão — variante vermelha sutil */
+/* Botão de exclusão - variante vermelha sutil */
 button[kind="secondary"] {
     background: #1f0a0a !important;
     color: #f87171 !important;
@@ -345,7 +345,7 @@ button[kind="secondary"]:hover {
 [data-testid="stMetricLabel"] { color: #525252 !important; }
 [data-testid="stMetricDelta"]  { color: #f97316 !important; }
 
-/* ── st.dataframe e st.data_editor — Dark Theme ──────────────────────────── */
+/* ── st.dataframe e st.data_editor - Dark Theme ──────────────────────────── */
 [data-testid="stDataFrame"],
 [data-testid="stDataFrameResizable"] {
     background-color: #171717 !important;
@@ -485,7 +485,7 @@ COMODOS_PADRAO: list[dict] = [
     {"Nome": "Banheiro",         "Largura (m)": 2.0, "Comprimento (m)": 1.5},
 ]
 
-# Tabela de insumos-base (Simplificada — 5 itens estruturais essenciais)
+# Tabela de insumos-base (Simplificada - 5 itens estruturais essenciais)
 INSUMOS_PADRAO: list[dict] = [
     {"Insumo": "Mão de Obra Geral",  "Unidade": "hora",    "Custo Unitário (R$)": 65.00,  "Tipo de Aplicação": "Ambos",            "Índice Técnico / m²": 8.0},
     {"Insumo": "Cimento CP II",      "Unidade": "kg",      "Custo Unitário (R$)": 0.85,   "Tipo de Aplicação": "Ambos",            "Índice Técnico / m²": 12.0},
@@ -527,7 +527,7 @@ SUGESTOES_PADRAO: dict = {
             "icone": "🔲",
             "titulo": "Porcelanato Técnico Retificado 120×60",
             "descricao": "Formato grande reduz rejuntes e facilita limpeza. Indicado para alto padrão.",
-            "economia_estimada": "—",
+            "economia_estimada": "-",
             "tags": ["premium", "durável", "baixa manutenção"],
         },
         {
@@ -549,7 +549,7 @@ SUGESTOES_PADRAO: dict = {
     ],
 }
 
-# Paleta de cômodos — tons grafite para contrastar com borda laranja
+# Paleta de cômodos - tons grafite para contrastar com borda laranja
 CORES_COMODOS: list[str] = [
     "#171717", "#141414", "#111111",
     "#161616", "#131313", "#181818",
@@ -601,7 +601,7 @@ def inicializar_estado() -> None:
         "df_insumos":     pd.DataFrame(INSUMOS_PADRAO),
         "pe_direito":     2.80,
         "desperdicio_pct": 10,
-        "nome_projeto":   "Projeto Residencial — Exemplo",
+        "nome_projeto":   "Projeto Residencial - Exemplo",
     }
     for chave, valor in defaults.items():
         if chave not in st.session_state:
@@ -609,14 +609,14 @@ def inicializar_estado() -> None:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# [F] ALGORITMO HEURÍSTICO DE LAYOUT + PLANTA ABNT (MATPLOTLIB — ORANGE)
+# [F] ALGORITMO HEURÍSTICO DE LAYOUT + PLANTA ABNT (MATPLOTLIB - ORANGE)
 # ═══════════════════════════════════════════════════════════════════════════
 
 
 def _calcular_posicoes(comodos: list[dict], gap: float = 0.35) -> list[dict]:
     """
     Dispõe cômodos em grid adjacente (heurística ceil(sqrt(n)) colunas).
-    Zero risco de IndexError — sem Bin Packing complexo.
+    Zero risco de IndexError - sem Bin Packing complexo.
     """
     n = len(comodos)
     if n == 0:
@@ -661,7 +661,7 @@ def _desenhar_cota_horizontal(
     valor: float, fontsize: float,
     cor: str = "#f97316",
 ) -> None:
-    """Cota horizontal ABNT — laranja accent."""
+    """Cota horizontal ABNT - laranja accent."""
     tick = 0.12
     ax.annotate(
         "", xy=(x1, y_cota), xytext=(x0, y_cota),
@@ -687,7 +687,7 @@ def _desenhar_cota_vertical(
     valor: float, fontsize: float,
     cor: str = "#f97316",
 ) -> None:
-    """Cota vertical ABNT — laranja accent."""
+    """Cota vertical ABNT - laranja accent."""
     tick = 0.12
     ax.annotate(
         "", xy=(x_cota, y1), xytext=(x_cota, y0),
@@ -710,7 +710,7 @@ def _desenhar_cota_vertical(
 
 def plotar_planta_esquematica(df_comodos: pd.DataFrame) -> Optional[plt.Figure]:
     """
-    Gera a planta baixa esquemática — Premium Tech Dark Mode.
+    Gera a planta baixa esquemática - Premium Tech Dark Mode.
 
     Estilo: fundo #0a0a0a · grid #1c1c1c · cômodos grafite #171717
             bordas e cotas laranja #f97316 · textos #fdba74
@@ -816,7 +816,7 @@ def plotar_planta_esquematica(df_comodos: pd.DataFrame) -> Optional[plt.Figure]:
     _desenhar_cota_vertical(ax,   0, max_y, -offset_ext, max_y, fontsize=8.5)
 
     ax.set_title(
-        "PLANTA BAIXA ESQUEMÁTICA — LAYOUT PARAMÉTRICO",
+        "PLANTA BAIXA ESQUEMÁTICA - LAYOUT PARAMÉTRICO",
         color="#fafafa", fontfamily="monospace",
         fontsize=11, fontweight="bold", pad=12,
     )
@@ -840,7 +840,7 @@ def plotar_planta_esquematica(df_comodos: pd.DataFrame) -> Optional[plt.Figure]:
 
 def plotar_grafico_custo_por_insumo(df_orcamento: pd.DataFrame) -> Optional[plt.Figure]:
     """
-    Gráfico de barras horizontal — custo total por insumo.
+    Gráfico de barras horizontal - custo total por insumo.
     Tema dark com degradê laranja → teal.
     """
     if df_orcamento.empty:
@@ -957,7 +957,7 @@ def gerar_pdf(
     pdf.set_xy(15, 32)
     pdf.set_font("Helvetica", "", 7.5)
     pdf.set_text_color(50, 70, 90)
-    pdf.cell(0, 6, "Sistema Inteligente para Calculo e Orcamento de Obras — MVP v3.0",
+    pdf.cell(0, 6, "Sistema Inteligente para Calculo e Orcamento de Obras - MVP v3.0",
              new_x="LMARGIN", new_y="NEXT")
 
     pdf.ln(10)
@@ -1107,7 +1107,7 @@ def gerar_pdf(
 
 def construir_aggrid(df: pd.DataFrame, altura: int = 360) -> pd.DataFrame:
     """
-    Renderiza AgGrid com tema 'alpine-dark' — integrado ao Premium Tech Dark Mode.
+    Renderiza AgGrid com tema 'alpine-dark' - integrado ao Premium Tech Dark Mode.
 
     Parâmetros
     ----------
@@ -1244,8 +1244,8 @@ def calcular_orcamento(
         custo_total = qtd_desp * cu
 
         linhas.append({
-            "Insumo":              str(row.get("Insumo", "—")),
-            "Unidade":             str(row.get("Unidade", "—")),
+            "Insumo":              str(row.get("Insumo", "-")),
+            "Unidade":             str(row.get("Unidade", "-")),
             "Tipo":                tipo,
             "Base (m²)":          round(base, 2),
             "Qtd. Teórica":       round(qtd_teorica, 3),
@@ -1415,7 +1415,7 @@ def renderizar_sidebar() -> None:
 
 
 def renderizar_header() -> None:
-    """Cabeçalho principal — Premium Tech Dark Mode com glow laranja."""
+    """Cabeçalho principal - Premium Tech Dark Mode com glow laranja."""
     st.markdown(
         """
         <div class="oc-header">
@@ -1460,11 +1460,11 @@ def renderizar_cards(metricas: dict, custo_total: float) -> None:
 
 def aba_gerenciador() -> None:
     """
-    Aba 1 — Gerenciador Paramétrico de Cômodos.
+    Aba 1 - Gerenciador Paramétrico de Cômodos.
 
     Layout:
-      Coluna Esquerda — st.form para adicionar + selectbox para excluir
-      Coluna Direita  — Planta baixa gerada em tempo real
+      Coluna Esquerda - st.form para adicionar + selectbox para excluir
+      Coluna Direita  - Planta baixa gerada em tempo real
     """
     st.markdown("### 📐 Gerenciador de Cômodos")
     st.caption(
@@ -1596,7 +1596,7 @@ def aba_gerenciador() -> None:
         st.markdown(
             "<p style='font-size:.72rem;color:#525252;text-transform:uppercase;"
             "letter-spacing:1.5px;font-weight:600;margin-bottom:12px;'>"
-            "🏠 Planta Baixa — Layout Heurístico Grid · ABNT NBR 6492</p>",
+            "🏠 Planta Baixa - Layout Heurístico Grid · ABNT NBR 6492</p>",
             unsafe_allow_html=True,
         )
         df_valido = st.session_state["comodos"].dropna(
@@ -1620,7 +1620,7 @@ def aba_gerenciador() -> None:
 
 def aba_precos() -> None:
     """
-    Aba 2 — Tabela de Preços Locais.
+    Aba 2 - Tabela de Preços Locais.
 
     Layout:
       Topo: st.form para adicionar insumo + st.form para excluir
@@ -1815,7 +1815,7 @@ def aba_precos() -> None:
 
 
 def aba_resultados() -> None:
-    """Aba 3 — Dashboard: cards, orçamento detalhado, gráfico e sugestões."""
+    """Aba 3 - Dashboard: cards, orçamento detalhado, gráfico e sugestões."""
     st.markdown("### 📊 Resultados e Orçamento")
 
     metricas = calcular_metricas_geometricas(
@@ -1934,7 +1934,7 @@ def aba_resultados() -> None:
                 )
                 st.markdown(
                     f"""<div class="sug-card">
-                        <h4>{sug.get('icone','💡')} {sug.get('titulo','—')}</h4>
+                        <h4>{sug.get('icone','💡')} {sug.get('titulo','-')}</h4>
                         <span style="font-size:.68rem;color:#404040;
                             text-transform:uppercase;letter-spacing:1px;
                             font-weight:600;">
@@ -1943,7 +1943,7 @@ def aba_resultados() -> None:
                         <p>{sug.get('descricao','')}</p>
                         <div style="font-size:.74rem;color:#f97316;
                             margin-bottom:6px;font-weight:500;">
-                            💰 {sug.get('economia_estimada','—')}
+                            💰 {sug.get('economia_estimada','-')}
                         </div>
                         {tags_html}
                     </div>""",
@@ -1955,7 +1955,7 @@ def aba_resultados() -> None:
 
 
 def aba_proposta_pdf() -> None:
-    """Aba 4 — Geração de PDF e Área do Administrador (edição do JSON)."""
+    """Aba 4 - Geração de PDF e Área do Administrador (edição do JSON)."""
     st.markdown("### 📄 Proposta Técnica em PDF")
 
     metricas = calcular_metricas_geometricas(
@@ -2045,7 +2045,7 @@ def aba_proposta_pdf() -> None:
     st.divider()
 
     # ── Área do Administrador ─────────────────────────────────────────
-    with st.expander("🔧 Área do Administrador — Editar sugestoes_mercado.json", expanded=False):
+    with st.expander("🔧 Área do Administrador - Editar sugestoes_mercado.json", expanded=False):
         st.caption(
             "Edite o JSON de sugestões de mercado diretamente. "
             "Alterações são salvas em `sugestoes_mercado.json` e refletidas imediatamente."
