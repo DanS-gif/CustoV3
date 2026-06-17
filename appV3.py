@@ -1343,7 +1343,7 @@ def renderizar_sidebar() -> None:
     """
     with st.sidebar:
         # ── BANNER / LOGO ORÇAOBRA NO SIDEBAR ──────────────────────────────────
-    st.sidebar.markdown(
+        st.sidebar.markdown(
         """
         <div style="padding: 10px 0px 20px 0px;">
             <h1 style="font-family: 'Inter', sans-serif; font-size: 2.2rem; font-weight: 800; color: #fafafa; margin: 0; letter-spacing: -1px;">
