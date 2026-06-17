@@ -1342,22 +1342,20 @@ def renderizar_sidebar() -> None:
     - Resumo rápido de métricas
     """
     with st.sidebar:
-        # Título com accent laranja
-        st.markdown(
-            """
-            <div style="padding:12px 0 20px;">
-                <span style="font-family:'Space Grotesk',sans-serif;
-                             font-size:1.6rem;font-weight:700;color:#fafafa;
-                             letter-spacing:-0.5px;">
-                    Métrica<span style="color:#f97316;">.</span>
-                </span><br>
-                <span style="font-size:0.75rem;color:#525252;letter-spacing:0.3px;">
-                    Orçamento Paramétrico · MVP v3.0
-                </span>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        # ── BANNER / LOGO ORÇAOBRA NO SIDEBAR ──────────────────────────────────
+    st.sidebar.markdown(
+        """
+        <div style="padding: 10px 0px 20px 0px;">
+            <h1 style="font-family: 'Inter', sans-serif; font-size: 2.2rem; font-weight: 800; color: #fafafa; margin: 0; letter-spacing: -1px;">
+                OrçaObra<span style="color: #f97316;">.</span>
+            </h1>
+            <p style="color: #737373; font-size: 0.85rem; margin: 4px 0 0 0; font-family: 'Inter', sans-serif;">
+                Painel de Controle Geral
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
         st.divider()
 
         # ── Inputs globais ──────────────────────────────────────────────
