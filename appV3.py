@@ -1622,13 +1622,13 @@ def aba_gerenciador() -> None:
         
         if not st.session_state["df_comodos"].empty:
             st.caption("Dica: Clique duas vezes nas células para editar os nomes ou dimensões.")
-            # O data_editor substitui o dataframe e salva a edição direto na memória oficial
+            
+            # Removido o parâmetro 'key' para evitar o erro DuplicateWidgetID
             st.session_state["df_comodos"] = st.data_editor(
                 st.session_state["df_comodos"],
                 use_container_width=True,
                 hide_index=True,
                 num_rows="dynamic",
-                key="editor_comodos",
                 height=min(300, 42 + len(st.session_state["df_comodos"]) * 36)
             )
         else:
