@@ -1612,7 +1612,7 @@ def aba_gerenciador() -> None:
 
         st.divider()
 
-      # ── Tabela atual de cômodos ────────────────────────────────────
+     # ── Tabela atual de cômodos ────────────────────────────────────
         st.markdown(
             "<p style='font-size:.72rem;color:#525252;text-transform:uppercase;"
             "letter-spacing:1.5px;font-weight:600;margin-bottom:8px;'>"
@@ -1620,20 +1620,20 @@ def aba_gerenciador() -> None:
             unsafe_allow_html=True,
         )
         
-        if not st.session_state["df_comodos"].empty:
+        # Correção: Apontando para a variável real "comodos" em vez de "df_comodos"
+        if not st.session_state["comodos"].empty:
             st.caption("Dica: Clique duas vezes nas células para editar os nomes ou dimensões.")
             
-            # Removido o parâmetro 'key' para evitar o erro DuplicateWidgetID
-            st.session_state["df_comodos"] = st.data_editor(
-                st.session_state["df_comodos"],
+            st.session_state["comodos"] = st.data_editor(
+                st.session_state["comodos"],
                 use_container_width=True,
                 hide_index=True,
                 num_rows="dynamic",
-                height=min(300, 42 + len(st.session_state["df_comodos"]) * 36)
+                height=min(300, 42 + len(st.session_state["comodos"]) * 36)
             )
         else:
             st.caption("Nenhum cômodo adicionado ainda.")
-
+          
     # ── Coluna Direita: Planta ─────────────────────────────────────────
     with col_plot:
         st.markdown(
