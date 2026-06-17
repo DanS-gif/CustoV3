@@ -1,5 +1,5 @@
 """
-Métrica. - Sistema Inteligente e Paramétrico para Cálculo e Orçamento de Obras
+Métrica - Sistema Inteligente e Paramétrico para Cálculo e Orçamento de Obras
 ===============================================================================
 MVP v3.0  |  Stack: Streamlit · Pandas · st-aggrid · Matplotlib · fpdf2 · JSON
 
@@ -613,10 +613,10 @@ def inicializar_estado() -> None:
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-def _calcular_posicoes(comodos: list[dict], gap: float = 0.35) -> list[dict]:
+def _calcular_posicoes(comodos: list[dict], gap: float = 1.6) -> list[dict]:
     """
-    Dispõe cômodos em grid adjacente (heurística ceil(sqrt(n)) colunas).
-    Zero risco de IndexError - sem Bin Packing complexo.
+    Dispõe cômodos em grid adjacente.
+    Gap aumentado para 1.6 para garantir espaço seguro para as cotas ABNT.
     """
     n = len(comodos)
     if n == 0:
@@ -787,16 +787,21 @@ def plotar_planta_esquematica(df_comodos: pd.DataFrame) -> Optional[plt.Figure]:
             fontfamily="monospace", fontweight="bold",
             zorder=5, clip_on=True,
         )
-        # Dimensões + área
+        # Dimensões + área (Com Badge SaaS de alto contraste)
         ax.text(
             x + w/2, y + h/2 - h*0.14,
-            f"{w:.1f}×{h:.1f} m  |  {w*h:.1f}m²",
+            f"{w:.1f}×{h:.1f} m  |  {area_com:.1f}m²",
             ha="center", va="center",
-            fontsize=fs_dim, color="#737373",
-            fontfamily="monospace",
-            zorder=5, clip_on=True,
+            fontsize=fs_dim, color="#e5e5e5", # Cinza muito claro/gelo
+            fontfamily="monospace", fontweight="bold",
+            bbox=dict(
+                facecolor="#0a0a0a",  # Fundo preto absoluto para destacar
+                edgecolor="#262626",  # Borda subtil
+                boxstyle="round,pad=0.3",
+                alpha=0.85 # Leve transparência
+            ),
+            zorder=6, clip_on=True,
         )
-
         # Cotas ABNT por cômodo
         offset = 0.55
         _desenhar_cota_horizontal(ax, x, x+w, y - offset, w,
