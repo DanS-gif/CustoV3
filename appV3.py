@@ -790,15 +790,15 @@ def plotar_planta_esquematica(df_comodos: pd.DataFrame) -> Optional[plt.Figure]:
         # Dimensões + área (Com Badge SaaS de alto contraste)
         ax.text(
             x + w/2, y + h/2 - h*0.14,
-            f"{w:.1f}×{h:.1f} m  |  {area_com:.1f}m²",
+            f"{w:.1f}×{h:.1f} m  |  {w*h:.1f}m²",
             ha="center", va="center",
-            fontsize=fs_dim, color="#e5e5e5", # Cinza muito claro/gelo
+            fontsize=fs_dim, color="#e5e5e5",
             fontfamily="monospace", fontweight="bold",
             bbox=dict(
-                facecolor="#0a0a0a",  # Fundo preto absoluto para destacar
-                edgecolor="#262626",  # Borda subtil
+                facecolor="#0a0a0a",
+                edgecolor="#262626",
                 boxstyle="round,pad=0.3",
-                alpha=0.85 # Leve transparência
+                alpha=0.85
             ),
             zorder=6, clip_on=True,
         )
