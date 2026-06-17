@@ -1,5 +1,5 @@
 """
-Métrica - Sistema Inteligente e Paramétrico para Cálculo e Orçamento de Obras
+OrçaObra - Sistema Inteligente e Paramétrico para Cálculo e Orçamento de Obras
 ===============================================================================
 MVP v3.0  |  Stack: Streamlit · Pandas · st-aggrid · Matplotlib · fpdf2 · JSON
 
@@ -31,10 +31,10 @@ from typing import Optional
 import streamlit as st
 
 st.set_page_config(
-    page_title="Métrica. · Orçamento Paramétrico",
+    page_title="OrçaObra · Orçamento Paramétrico",
     page_icon="📐",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="expanded"
 )
 
 # ── Guarda de dependências - exibe erro amigável antes de crashar ──────────
@@ -821,13 +821,13 @@ def plotar_planta_esquematica(df_comodos: pd.DataFrame) -> Optional[plt.Figure]:
     _desenhar_cota_vertical(ax,   0, max_y, -offset_ext, max_y, fontsize=8.5)
 
     ax.set_title(
-        "PLANTA BAIXA ESQUEMÁTICA - LAYOUT PARAMÉTRICO",
+        "PLANTA BAIXA ESQUEMÁTICA — ORÇAOBRA",
         color="#fafafa", fontfamily="monospace",
         fontsize=11, fontweight="bold", pad=12,
     )
     fig.text(
         0.5, 0.005,
-        "Métrica. MVP v3.0  |  Heurístico Grid  |  ABNT NBR 6492  |  Escala: sem escala",
+        "OrçaObra  |  Heurístico Grid  |  ABNT NBR 6492  |  Escala: sem escala",
         ha="center", fontsize=7, color="#404040", fontfamily="monospace",
     )
     ax.tick_params(colors="#404040", labelsize=6.5)
@@ -919,18 +919,17 @@ def tx(texto: str) -> str:
     return texto
 
 
-class MetricaRelatorio(FPDF):
+class OrcaObraRelatorio(FPDF):
     """Classe customizada para injeção de cabeçalhos e rodapés executivos."""
     def __init__(self, nome_projeto: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.nome_projeto = nome_projeto
 
     def header(self):
-        # O cabeçalho só aparece a partir da página 2 para não poluir a capa
         if self.page_no() > 1:
             self.set_font("Helvetica", "I", 8)
             self.set_text_color(150, 150, 150)
-            self.cell(0, 8, tx(f"Metrica.  |  Relatorio Tecnico Executivo: {self.nome_projeto}"), 
+            self.cell(0, 8, tx(f"OrçaObra  |  Relatorio Tecnico Executivo: {self.nome_projeto}"), 
                       border="B", new_x="LMARGIN", new_y="NEXT", align="R")
             self.ln(6)
 
@@ -938,14 +937,12 @@ class MetricaRelatorio(FPDF):
         self.set_y(-15)
         self.set_font("Helvetica", "", 8)
         self.set_text_color(150, 150, 150)
-        # Linha divisória sutil no rodapé
         self.set_draw_color(230, 230, 230)
         self.set_line_width(0.2)
         self.line(15, self.get_y(), 195, self.get_y())
         
-        self.cell(90, 10, tx("Metrica.app  |  Inteligencia Parametrica"), align="L")
+        self.cell(90, 10, tx("OrçaObra  |  Inteligencia Parametrica"), align="L")
         self.cell(90, 10, tx(f"Pagina {self.page_no()}"), align="R")
-
 
 def _fig_para_bytes(fig: plt.Figure, dpi: int = 150) -> io.BytesIO:
     """Serializa figura Matplotlib para PNG em memória."""
@@ -964,7 +961,7 @@ def gerar_pdf(
     fig_custos: Optional[plt.Figure],
 ) -> bytes:
     """Gera uma proposta executiva estruturada com memorial descritivo integrado."""
-    pdf = MetricaRelatorio(nome_projeto=nome_projeto, orientation="P", unit="mm", format="A4")
+    pdf = OrcaObraRelatorio(nome_projeto=nome_projeto, orientation="P", unit="mm", format="A4")
     pdf.set_auto_page_break(auto=True, margin=20)
     pdf.set_margins(left=15, top=15, right=15)
 
@@ -978,8 +975,8 @@ def gerar_pdf(
     pdf.set_xy(15, 14)
     pdf.set_font("Helvetica", "B", 26)
     pdf.set_text_color(15, 23, 42)
-    pdf.cell(36, 12, tx("Metrica"))
-    pdf.set_text_color(249, 115, 22) # Ponto laranja da marca
+    pdf.cell(42, 12, tx("OrçaObra"))  # Largura corrigida para acomodar o texto perfeitamente
+    pdf.set_text_color(249, 115, 22)
     pdf.cell(0, 12, tx("."), new_x="LMARGIN", new_y="NEXT")
 
     pdf.set_xy(15, 26)
@@ -1340,7 +1337,7 @@ def carregar_csv_insumos(arquivo) -> tuple[Optional[pd.DataFrame], Optional[str]
 def renderizar_sidebar() -> None:
     """
     Sidebar global com:
-    - Título 'Métrica.' com ponto laranja
+    - Título 'OrçaObra' com ponto laranja
     - Inputs globais: nome do projeto, pé-direito, desperdício
     - Resumo rápido de métricas
     """
@@ -1460,11 +1457,11 @@ def renderizar_sidebar() -> None:
 
 
 def renderizar_header() -> None:
-    """Cabeçalho principal - Premium Tech Dark Mode com glow laranja."""
+    """Renderiza o cabeçalho com identidade visual Premium Tech Dark Mode."""
     st.markdown(
         """
         <div class="oc-header">
-            <h1>🏗️ Métrica<span class="accent">.</span></h1>
+            <h1>OrçaObra<span>.</span></h1>
             <p>Sistema Inteligente e Paramétrico para Cálculo e Orçamento de Obras · MVP v3.0</p>
         </div>
         """,
