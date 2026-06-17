@@ -892,8 +892,54 @@ def plotar_grafico_custo_por_insumo(df_orcamento: pd.DataFrame) -> Optional[plt.
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# [H] GERAÇÃO DE PROPOSTA PDF (fpdf2)
+# [H] GERAÇÃO DE PROPOSTA EM PDF (fpdf2 - MEMORIAL DESCRITIVO EXECUTIVO)
 # ═══════════════════════════════════════════════════════════════════════════
+
+def tx(texto: str) -> str:
+    """Transliteração global de caracteres para compatibilidade nativa fpdf2."""
+    texto = str(texto)
+    mapa = {
+        "ã":"a","â":"a","á":"a","à":"a","ä":"a",
+        "ê":"e","é":"e","è":"e","ë":"e",
+        "í":"i","î":"i","ì":"i",
+        "õ":"o","ô":"o","ó":"o","ò":"o","ö":"o",
+        "ú":"u","û":"u","ù":"u","ü":"u",
+        "ç":"c","ñ":"n",
+        "Ã":"A","Â":"A","Á":"A","À":"A",
+        "Ê":"E","É":"E","Í":"I","Î":"I",
+        "Õ":"O","Ô":"O","Ó":"O","Ú":"U","Û":"U","Ç":"C",
+    }
+    for orig, sub in mapa.items():
+        texto = texto.replace(orig, sub)
+    return texto
+
+
+class MetricaRelatorio(FPDF):
+    """Classe customizada para injeção de cabeçalhos e rodapés executivos."""
+    def __init__(self, nome_projeto: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.nome_projeto = nome_projeto
+
+    def header(self):
+        # O cabeçalho só aparece a partir da página 2 para não poluir a capa
+        if self.page_no() > 1:
+            self.set_font("Helvetica", "I", 8)
+            self.set_text_color(150, 150, 150)
+            self.cell(0, 8, tx(f"Metrica.  |  Relatorio Tecnico Executivo: {self.nome_projeto}"), 
+                      border="B", new_x="LMARGIN", new_y="NEXT", align="R")
+            self.ln(6)
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font("Helvetica", "", 8)
+        self.set_text_color(150, 150, 150)
+        # Linha divisória sutil no rodapé
+        self.set_draw_color(230, 230, 230)
+        self.set_line_width(0.2)
+        self.line(15, self.get_y(), 195, self.get_y())
+        
+        self.cell(90, 10, tx("Metrica.app  |  Inteligencia Parametrica"), align="L")
+        self.cell(90, 10, tx(f"Pagina {self.page_no()}"), align="R")
 
 
 def _fig_para_bytes(fig: plt.Figure, dpi: int = 150) -> io.BytesIO:
@@ -912,70 +958,61 @@ def gerar_pdf(
     fig_planta: Optional[plt.Figure],
     fig_custos: Optional[plt.Figure],
 ) -> bytes:
-    """
-    Gera proposta técnica PDF com fpdf2.
-
-    Estrutura: capa + métricas → planta baixa → tabela de orçamento → gráfico.
-    Usa transliteração ASCII para compatibilidade com fontes padrão fpdf2.
-    """
-    pdf = FPDF(orientation="P", unit="mm", format="A4")
-    pdf.set_auto_page_break(auto=True, margin=15)
+    """Gera uma proposta executiva estruturada com memorial descritivo integrado."""
+    pdf = MetricaRelatorio(nome_projeto=nome_projeto, orientation="P", unit="mm", format="A4")
+    pdf.set_auto_page_break(auto=True, margin=20)
     pdf.set_margins(left=15, top=15, right=15)
 
-    def tx(texto: str) -> str:
-        """Transliteração de acentos para compatibilidade fpdf2."""
-        mapa = {
-            "ã":"a","â":"a","á":"a","à":"a","ä":"a",
-            "ê":"e","é":"e","è":"e","ë":"e",
-            "í":"i","î":"i","ì":"i",
-            "õ":"o","ô":"o","ó":"o","ò":"o","ö":"o",
-            "ú":"u","û":"u","ù":"u","ü":"u",
-            "ç":"c","ñ":"n",
-            "Ã":"A","Â":"A","Á":"A","À":"A",
-            "Ê":"E","É":"E","Í":"I","Î":"I",
-            "Õ":"O","Ô":"O","Ó":"O","Ú":"U","Û":"U","Ç":"C",
-        }
-        for orig, sub in mapa.items():
-            texto = texto.replace(orig, sub)
-        return texto
-
-    # ── Página 1: Capa e Métricas ──────────────────────────────────────
+    # ── PÁGINA 1: CAPA, INTRODUÇÃO E MÉTRICAS ─────────────────────────────
     pdf.add_page()
 
-    pdf.set_fill_color(10, 10, 10)
-    pdf.rect(0, 0, 210, 42, "F")
-    pdf.set_xy(15, 10)
-    pdf.set_font("Helvetica", "B", 22)
-    pdf.set_text_color(249, 115, 22)
-    pdf.cell(0, 10, "Metrica.", new_x="LMARGIN", new_y="NEXT")
+    # Faixa de topo institucional (Premium Minimalist Gray + Orange Dot)
+    pdf.set_fill_color(248, 250, 252)
+    pdf.rect(0, 0, 210, 45, "F")
+    
+    pdf.set_xy(15, 14)
+    pdf.set_font("Helvetica", "B", 26)
+    pdf.set_text_color(15, 23, 42)
+    pdf.cell(36, 12, tx("Metrica"))
+    pdf.set_text_color(249, 115, 22) # Ponto laranja da marca
+    pdf.cell(0, 12, tx("."), new_x="LMARGIN", new_y="NEXT")
 
-    pdf.set_xy(15, 22)
-    pdf.set_font("Helvetica", "", 11)
-    pdf.set_text_color(100, 120, 140)
-    pdf.cell(0, 8, tx(nome_projeto), new_x="LMARGIN", new_y="NEXT")
+    pdf.set_xy(15, 26)
+    pdf.set_font("Helvetica", "", 12)
+    pdf.set_text_color(71, 85, 105)
+    pdf.cell(0, 6, tx(f"PROPOSTA TECNICA E MEMORIAL DESCRITIVO: {nome_projeto}"), new_x="LMARGIN", new_y="NEXT")
 
-    pdf.set_xy(15, 32)
-    pdf.set_font("Helvetica", "", 7.5)
-    pdf.set_text_color(50, 70, 90)
-    pdf.cell(0, 6, "Sistema Inteligente para Calculo e Orcamento de Obras - MVP v3.0",
-             new_x="LMARGIN", new_y="NEXT")
+    # Espaçamento pós-cabeçalho
+    pdf.set_xy(15, 52)
 
-    pdf.ln(10)
-    pdf.set_draw_color(38, 38, 38)
-    pdf.set_line_width(0.4)
-    pdf.line(15, pdf.get_y(), 195, pdf.get_y())
-    pdf.ln(8)
+    # Texto de Introdução / Contexto Descritivo
+    pdf.set_font("Helvetica", "B", 12)
+    pdf.set_text_color(15, 23, 42)
+    pdf.cell(0, 6, tx("1. RESUMO EXECUTIVO"), new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(2)
+    
+    pdf.set_font("Helvetica", "", 10)
+    pdf.set_text_color(51, 65, 85)
+    introducao = (
+        f"Este documento consolida o planejamento metrico e a estimativa orcamentaria parametrizada "
+        f"para o empreendimento denominado '{nome_projeto}'. As analises volumetricas e de consumo "
+        f"foram processadas de forma automatizada pelo motor computacional da plataforma Metrica, utilizando "
+        f"como base as diretrizes geometricas fornecidas pelo projetista e os indices de rendimento do canteiro."
+    )
+    pdf.multi_cell(0, 5, tx(introducao), new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(6)
 
+    # Bloco de métricas geométricas
     pdf.set_font("Helvetica", "B", 11)
-    pdf.set_text_color(249, 115, 22)
-    pdf.cell(0, 8, "METRICAS DO PROJETO", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_text_color(15, 23, 42)
+    pdf.cell(0, 6, tx("2. QUADRO DE AREAS E METRICAS GLOBAIS"), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(3)
 
     col_w = 87.5
     dados_metricas = [
         ("Area de Piso Total",      f"{metricas.get('area_piso', 0):.2f} m2"),
         ("Perimetro Interno Total", f"{metricas.get('perimetro', 0):.2f} m"),
-        ("Pe-direito",              f"{metricas.get('pe_direito', 2.80):.2f} m"),
+        ("Pe-direito Cadastrado",   f"{metricas.get('pe_direito', 2.80):.2f} m"),
         ("Area de Parede Total",    f"{metricas.get('area_parede', 0):.2f} m2"),
         ("Margem de Desperdicio",   f"{metricas.get('desperdicio_pct', 10)}%"),
         ("CUSTO TOTAL ESTIMADO",    f"R$ {metricas.get('custo_total', 0):,.2f}".replace(",", ".")),
@@ -986,67 +1023,84 @@ def gerar_pdf(
         col   = i % 2
         x_pos = 15 + col * col_w
 
-        pdf.set_fill_color(17, 17, 17)
+        pdf.set_fill_color(248, 250, 252)
+        pdf.set_draw_color(241, 245, 249)
         pdf.set_xy(x_pos, y_pos)
-        pdf.set_font("Helvetica", "", 7.5)
-        pdf.set_text_color(80, 80, 90)
-        pdf.cell(col_w - 2, 5, tx(lbl), fill=True, new_x="RIGHT", new_y="TOP")
+        pdf.set_font("Helvetica", "", 8)
+        pdf.set_text_color(100, 116, 139)
+        pdf.cell(col_w - 2, 5, tx(lbl), fill=True, border=1, new_x="RIGHT", new_y="TOP")
 
         pdf.set_xy(x_pos, y_pos + 5)
-        pdf.set_font("Helvetica", "B", 11)
+        pdf.set_font("Helvetica", "B", 10.5)
         is_custo = "CUSTO" in lbl
-        if is_custo:
-            pdf.set_text_color(249, 115, 22)
-        else:
-            pdf.set_text_color(200, 210, 220)
-        pdf.cell(col_w - 2, 7, tx(val), fill=True, new_x="RIGHT", new_y="TOP")
+        pdf.set_text_color(249, 115, 22) if is_custo else pdf.set_text_color(15, 23, 42)
+        pdf.cell(col_w - 2, 7, tx(val), fill=True, border=1, new_x="RIGHT", new_y="TOP")
 
         if col == 1 or i == len(dados_metricas) - 1:
-            pdf.set_xy(15, y_pos + 13)
+            pdf.set_xy(15, y_pos + 14)
 
-    pdf.ln(10)
-    pdf.set_draw_color(38, 38, 38)
-    pdf.line(15, pdf.get_y(), 195, pdf.get_y())
-    pdf.ln(8)
+    pdf.ln(4)
 
-    # ── Planta Baixa ──────────────────────────────────────────────────
+    # ── PÁGINA 2: ANÁLISE ESPACIAL (PLANTA BAIXA) ─────────────────────────
     if fig_planta is not None:
-        pdf.set_font("Helvetica", "B", 11)
-        pdf.set_text_color(249, 115, 22)
-        pdf.cell(0, 8, "PLANTA BAIXA ESQUEMATICA", new_x="LMARGIN", new_y="NEXT")
-        pdf.ln(3)
+        pdf.add_page()
+        pdf.set_font("Helvetica", "B", 12)
+        pdf.set_text_color(15, 23, 42)
+        pdf.cell(0, 6, tx("3. CONFIGURACAO ESPACIAL E ZONEAMENTO"), new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(2)
+        
+        pdf.set_font("Helvetica", "", 10)
+        pdf.set_text_color(51, 65, 85)
+        texto_planta = (
+            "Abaixo, apresenta-se a planta baixa esquematica gerada pelo algoritmo heuristico de "
+            "adjacencia em grid. O zoneamento respeita rigorosamente as cotas e dimensoes informadas, "
+            "providenciando uma inspecao visual rapida para a analise de perimetros de vedacao e "
+            "conforto geometrico dos ambientes segundo as normas de desempenho."
+        )
+        pdf.multi_cell(0, 5, tx(texto_planta), new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(4)
+        
         try:
-            buf = _fig_para_bytes(fig_planta, dpi=120)
+            buf = _fig_para_bytes(fig_planta, dpi=130)
             pdf.image(buf, x=15, y=None, w=180)
         except Exception:
-            pdf.set_text_color(160, 80, 80)
-            pdf.cell(0, 8, "[Erro ao renderizar planta]", new_x="LMARGIN", new_y="NEXT")
-        pdf.ln(6)
+            pdf.cell(0, 8, tx("[Imagem da planta indisponivel]"), new_x="LMARGIN", new_y="NEXT")
 
-    # ── Página 2: Orçamento ────────────────────────────────────────────
+    # ── PÁGINA 3: ORÇAMENTO E GRÁFICOS ────────────────────────────────────
     pdf.add_page()
+    pdf.set_font("Helvetica", "B", 12)
+    pdf.set_text_color(15, 23, 42)
+    pdf.cell(0, 6, tx("4. PLANEJAMENTO ORCAMENTARIO COMPOSITO"), new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(2)
 
-    pdf.set_font("Helvetica", "B", 13)
-    pdf.set_text_color(249, 115, 22)
-    pdf.cell(0, 10, "ORCAMENTO DETALHADO", new_x="LMARGIN", new_y="NEXT")
-    pdf.ln(4)
+    pdf.set_font("Helvetica", "", 10)
+    pdf.set_text_color(51, 65, 85)
+    texto_orcamento = (
+        "As quantidades finais discriminadas abaixo incorporam a margem de seguranca configurada contra "
+        "perdas e quebras comuns de canteiro. Os calculos cruzam a area geometrica de referencia (piso ou parede) "
+        "com as tabelas de composicao analitica (Indices Tecnicos por metro quadrado)."
+    )
+    pdf.multi_cell(0, 5, tx(texto_orcamento), new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(5)
 
     if not df_orcamento.empty:
         cols_pdf = ["Insumo", "Unid.", "Qtd. c/ Desp.", "Custo Unit.", "Custo Total"]
         larguras = [65, 18, 30, 32, 35]
 
-        pdf.set_fill_color(17, 17, 17)
-        pdf.set_text_color(249, 115, 22)
-        pdf.set_font("Helvetica", "B", 8)
+        # Cabeçalho da tabela limpo (Corporativo)
+        pdf.set_fill_color(241, 245, 249)
+        pdf.set_text_color(15, 23, 42)
+        pdf.set_font("Helvetica", "B", 8.5)
         for nome_col, larg in zip(cols_pdf, larguras):
-            pdf.cell(larg, 8, nome_col, border=1, align="C", fill=True)
+            pdf.cell(larg, 8, tx(nome_col), border=1, align="C", fill=True)
         pdf.ln()
 
-        pdf.set_font("Helvetica", "", 7.5)
+        # Linhas
+        pdf.set_font("Helvetica", "", 8)
         for i, (_, row) in enumerate(df_orcamento.iterrows()):
-            fill_rgb = (23, 23, 23) if i % 2 == 0 else (17, 17, 17)
+            fill_rgb = (255, 255, 255) if i % 2 == 0 else (248, 250, 252)
             pdf.set_fill_color(*fill_rgb)
-            pdf.set_text_color(163, 163, 163)
+            pdf.set_text_color(51, 65, 85)
 
             vals = [
                 tx(str(row.get("Insumo", "")))[:38],
@@ -1060,42 +1114,28 @@ def gerar_pdf(
                 pdf.cell(larg, 7, val, border=1, align=alg, fill=True)
             pdf.ln()
 
+        # Totalizador
         total = df_orcamento["Custo Total (R$)"].sum()
-        pdf.set_fill_color(10, 10, 10)
-        pdf.set_text_color(249, 115, 22)
-        pdf.set_font("Helvetica", "B", 9)
-        pdf.cell(sum(larguras[:-1]), 9, "TOTAL GERAL", border=1, align="R", fill=True)
-        pdf.cell(larguras[-1], 9,
-                 f"R$ {total:,.2f}".replace(",", "."),
-                 border=1, align="R", fill=True)
-        pdf.ln()
+        pdf.set_fill_color(15, 23, 42)
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_font("Helvetica", "B", 9.5)
+        pdf.cell(sum(larguras[:-1]), 9, tx("TOTAL CONSOLIDADO  "), border=1, align="R", fill=True)
+        pdf.cell(larguras[-1], 9, f"R$ {total:,.2f}".replace(",", "."), border=1, align="R", fill=True)
+        pdf.ln(12)
 
-    pdf.ln(10)
-
-    # ── Gráfico de Custos ──────────────────────────────────────────────
+    # ── Gráfico analítico de custos ────────────────────────────────────
     if fig_custos is not None:
         pdf.set_font("Helvetica", "B", 11)
-        pdf.set_text_color(249, 115, 22)
-        pdf.cell(0, 8, "DISTRIBUICAO DE CUSTOS POR INSUMO",
-                 new_x="LMARGIN", new_y="NEXT")
-        pdf.ln(3)
+        pdf.set_text_color(15, 23, 42)
+        pdf.cell(0, 6, tx("5. ANALISE GRAFICA DE IMPACTO FINANCEIRO"), new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(2)
         try:
             buf = _fig_para_bytes(fig_custos, dpi=110)
-            espaco = 297 - 15 - pdf.get_y()
-            h_img  = min(120.0, max(60.0, float(espaco) - 10.0))
+            espaco = 297 - 20 - pdf.get_y()
+            h_img  = min(100.0, max(50.0, float(espaco) - 5.0))
             pdf.image(buf, x=15, y=None, w=180, h=h_img)
         except Exception:
             pass
-
-    # ── Rodapé ────────────────────────────────────────────────────────
-    pdf.set_y(-15)
-    pdf.set_font("Helvetica", "I", 7)
-    pdf.set_text_color(50, 50, 60)
-    pdf.cell(
-        0, 5,
-        "Metrica. MVP v3.0 - Valores estimados. Consulte profissional habilitado para validacao.",
-        align="C",
-    )
 
     return bytes(pdf.output())
 
@@ -1740,7 +1780,7 @@ def aba_precos() -> None:
     col_imp, col_tpl, col_exp = st.columns(3)
 
     with col_tpl:
-        tpl = st.session_state["df_insumos"].to_csv(index=False).encode("utf-8")
+        tpl = st.session_state["df_insumos"].to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig")
         st.download_button(
             "📥 Template CSV",
             data=tpl,
@@ -1768,7 +1808,7 @@ def aba_precos() -> None:
                 st.rerun()
 
     with col_exp:
-        exp = st.session_state["df_insumos"].to_csv(index=False).encode("utf-8")
+        exp = st.session_state["df_insumos"].to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig")
         st.download_button(
             "📤 Exportar CSV",
             data=exp,
@@ -1888,7 +1928,7 @@ def aba_resultados() -> None:
                 unsafe_allow_html=True,
             )
 
-            csv_orc = df_orc.to_csv(index=False).encode("utf-8")
+            csv_orc = df_orc.to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig")
             nome_arq = st.session_state["nome_projeto"].replace(" ", "_")[:30]
             st.download_button(
                 "📥 Exportar Orçamento CSV",
