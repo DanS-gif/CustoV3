@@ -1612,21 +1612,24 @@ def aba_gerenciador() -> None:
 
         st.divider()
 
-        # ── Tabela atual de cômodos ────────────────────────────────────
+      # ── Tabela atual de cômodos ────────────────────────────────────
         st.markdown(
             "<p style='font-size:.72rem;color:#525252;text-transform:uppercase;"
             "letter-spacing:1.5px;font-weight:600;margin-bottom:8px;'>"
             "📋 Cômodos Cadastrados</p>",
             unsafe_allow_html=True,
         )
-        if not df_atual.empty:
-            df_exib = df_atual.copy()
-            df_exib.index = range(1, len(df_exib) + 1)
-            st.dataframe(
-                df_exib,
+        
+        if not st.session_state["df_comodos"].empty:
+            st.caption("Dica: Clique duas vezes nas células para editar os nomes ou dimensões.")
+            # O data_editor substitui o dataframe e salva a edição direto na memória oficial
+            st.session_state["df_comodos"] = st.data_editor(
+                st.session_state["df_comodos"],
                 use_container_width=True,
-                hide_index=False,
-                height=min(300, 42 + len(df_exib) * 36),
+                hide_index=True,
+                num_rows="dynamic",
+                key="editor_comodos",
+                height=min(300, 42 + len(st.session_state["df_comodos"]) * 36)
             )
         else:
             st.caption("Nenhum cômodo adicionado ainda.")
